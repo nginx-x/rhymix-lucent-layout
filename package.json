@@ -1,0 +1,15 @@
+{
+  "name": "rhymix-layout-lucent",
+  "version": "1.0.0",
+  "description": "Lucent — a clean, modern glassmorphism layout for Rhymix, built with Tailwind CSS v4.",
+  "license": "GPL-2.0-or-later",
+  "private": true,
+  "scripts": {
+    "build": "tailwindcss -i ./src/input.css -o ./lucent.layout.css --minify",
+    "dev": "tailwindcss -i ./src/input.css -o ./lucent.layout.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.0.0",
+    "tailwindcss": "^4.0.0"
+  }
+}

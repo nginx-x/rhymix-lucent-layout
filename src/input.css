@@ -1,0 +1,738 @@
+/*!
+ * Lucent — Glassmorphism Layout for Rhymix
+ * Licensed GPL v2 or later.
+ * Built with Tailwind CSS v4 (MIT, Copyright (c) Tailwind Labs Inc.)
+ *
+ * NOTE: Tailwind Preflight is intentionally NOT imported. A Rhymix layout
+ * wraps third-party module skins (board, etc.) inside .lucent-content; a
+ * global reset would leak into and break them. We scope our own resets to
+ * the layout chrome only.
+ */
+
+@layer theme, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* Scan the layout chrome for any utility classes used in markup. */
+@source "../layout.html";
+@source "../lucent.layout.js";
+
+@theme {
+	--color-accent: #6366f1;
+	--color-accent-2: #8b5cf6;
+	--font-sans: "Pretendard", "Pretendard Variable", -apple-system, BlinkMacSystemFont,
+		"Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+
+/* =========================================================================
+   Design tokens — scheme aware. Driven by data-scheme on .lucent.
+   Accent colors come from layout.html (extra_vars) via --lucent-accent.
+   ========================================================================= */
+.lucent {
+	--lucent-accent: var(--color-accent);
+	--lucent-accent-2: var(--color-accent-2);
+
+	/* blur strength (data-blur) */
+	--lucent-blur: 16px;
+
+	/* light scheme defaults */
+	--glass-bg: rgba(255, 255, 255, 0.55);
+	--glass-bg-strong: rgba(255, 255, 255, 0.78);
+	--glass-border: rgba(255, 255, 255, 0.6);
+	--glass-shadow: 0 8px 32px rgba(17, 24, 39, 0.12);
+	--text: #1f2430;
+	--text-muted: #5b6373;
+	--bg-base: #eef1f8;
+	--bg-blob-1: color-mix(in srgb, var(--lucent-accent) 55%, transparent);
+	--bg-blob-2: color-mix(in srgb, var(--lucent-accent-2) 55%, transparent);
+	--bg-blob-3: color-mix(in srgb, var(--lucent-blob-3, #22d3ee) 45%, transparent);
+	--radius: 16px;
+	--radius-lg: 22px;
+	--ctl-h: 42px;            /* shared control height: search box, buttons, login pill */
+
+	color: var(--text);
+	font-family: var(--font-sans);
+	line-height: 1.55;
+	-webkit-font-smoothing: antialiased;
+}
+
+
+
+/* Dark tokens — applied to explicit dark, and to auto under system-dark.
+   (Plain CSS has no mixins, so the two selectors are listed together.) */
+.lucent[data-scheme="dark"] {
+	--glass-bg: rgba(22, 25, 35, 0.5);
+	--glass-bg-strong: rgba(22, 25, 35, 0.82);
+	--glass-border: rgba(255, 255, 255, 0.12);
+	--glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+	--text: #e8eaf1;
+	--text-muted: #a4abbd;
+	--bg-base: #0b0e16;
+}
+@media (prefers-color-scheme: dark) {
+	.lucent[data-scheme="auto"] {
+		--glass-bg: rgba(22, 25, 35, 0.5);
+		--glass-bg-strong: rgba(22, 25, 35, 0.82);
+		--glass-border: rgba(255, 255, 255, 0.12);
+		--glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+		--text: #e8eaf1;
+		--text-muted: #a4abbd;
+		--bg-base: #0b0e16;
+	}
+}
+
+/* =========================================================================
+   Layout chrome reset (scoped — does NOT touch .lucent-content children)
+   ========================================================================= */
+.lucent,
+.lucent .lucent-header *,
+.lucent .lucent-drawer *,
+.lucent .lucent-lnb *,
+.lucent .lucent-footer * {
+	box-sizing: border-box;
+}
+.lucent .lucent-menu,
+.lucent .lucent-mega-grid,
+.lucent .lucent-l3,
+.lucent .lucent-drawer-nav ul,
+.lucent .lucent-lnb-list,
+.lucent .lucent-lnb-list ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.lucent a { color: inherit; text-decoration: none; }
+
+/* =========================================================================
+   Decorative background
+   ========================================================================= */
+/* Reset page frame so the layout truly covers the whole viewport
+   (this CSS only loads on pages using the Lucent layout). */
+html, body {
+	margin: 0;
+	padding: 0;
+	background: #eef1f8;
+}
+
+/* Sync parent background (html/body) with the active color scheme */
+html:has(.lucent[data-scheme="dark"]),
+body:has(.lucent[data-scheme="dark"]) {
+	background: #0b0e16;
+}
+@media (prefers-color-scheme: dark) {
+	html:has(.lucent[data-scheme="auto"]),
+	body:has(.lucent[data-scheme="auto"]),
+	html:not(:has(.lucent)),
+	body:not(:has(.lucent)) {
+		background: #0b0e16;
+	}
+}
+
+.lucent { position: relative; min-height: 100vh; background: var(--bg-base); overflow-x: clip; }
+/* keep module content (images, videos, embeds) from overflowing on small screens */
+.lucent-content :is(img, video, iframe, embed, object) { max-width: 100%; }
+.lucent-content img { height: auto; }
+.lucent-bg {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	overflow: hidden;
+}
+.lucent[data-bg="aurora"] .lucent-bg {
+	background:
+		radial-gradient(38rem 38rem at 12% -8%, var(--bg-blob-1), transparent 60%),
+		radial-gradient(34rem 34rem at 92% 6%, var(--bg-blob-2), transparent 58%),
+		radial-gradient(30rem 30rem at 78% 92%, var(--bg-blob-3), transparent 60%);
+}
+.lucent[data-bg="image"] .lucent-bg {
+	background-size: cover;
+	background-position: center;
+}
+.lucent[data-bg="image"] .lucent-bg::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: color-mix(in srgb, var(--bg-base) 35%, transparent);
+}
+
+/* Everything above the background */
+.lucent-header,
+.lucent-main,
+.lucent-footer,
+.lucent-drawer,
+.lucent-drawer-backdrop { position: relative; z-index: 1; }
+
+/* container widths — header & footer are floating centered bars, like content */
+.lucent-header,
+.lucent-footer,
+.lucent-container { width: calc(100% - 28px); margin-inline: auto; }
+.lucent-container { padding-inline: clamp(12px, 3vw, 24px); }
+.lucent[data-width="boxed"] :is(.lucent-header,.lucent-footer,.lucent-container) { max-width: 1120px; }
+.lucent[data-width="wide"]  :is(.lucent-header,.lucent-footer,.lucent-container) { max-width: 1320px; }
+.lucent[data-width="full"]  :is(.lucent-header,.lucent-footer,.lucent-container) { max-width: none; }
+
+/* skip link */
+.lucent-skip {
+	position: absolute; left: -9999px; top: 8px; z-index: 100;
+	padding: 10px 16px; border-radius: 10px;
+	background: var(--lucent-accent); color: #fff;
+}
+.lucent-skip:focus { left: 12px; }
+
+/* =========================================================================
+   Glass surface helper
+   ========================================================================= */
+.lucent-glass {
+	background: var(--glass-bg);
+	-webkit-backdrop-filter: blur(var(--lucent-blur)) saturate(150%);
+	backdrop-filter: blur(var(--lucent-blur)) saturate(150%);
+	border: 1px solid var(--glass-border);
+	box-shadow: var(--glass-shadow);
+}
+/* graceful fallback if backdrop-filter unsupported */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.lucent { --glass-bg: var(--glass-bg-strong); }
+}
+
+/* =========================================================================
+   Header
+   ========================================================================= */
+.lucent-header {
+	margin-top: 14px;
+	background: var(--glass-bg);
+	-webkit-backdrop-filter: blur(var(--lucent-blur)) saturate(150%);
+	backdrop-filter: blur(var(--lucent-blur)) saturate(150%);
+	border: 1px solid var(--glass-border);
+	border-radius: var(--radius-lg);
+	box-shadow: 0 12px 34px rgba(17, 24, 39, 0.12);
+}
+.lucent[data-sticky="yes"] .lucent-header { position: sticky; top: 14px; z-index: 40; }
+.lucent-header-inner {
+	display: flex; align-items: center; gap: 18px;
+	min-height: 56px;
+	padding-inline: clamp(14px, 2vw, 22px);
+}
+.lucent-logo { display: inline-flex; align-items: center; font-weight: 800; font-size: 20px; letter-spacing: -0.01em; }
+.lucent-logo img { max-height: 38px; width: auto; display: block; }
+
+/* nav */
+.lucent-gnb { flex: 1 1 auto; }
+.lucent-menu { display: flex; align-items: center; gap: 4px; }
+.lucent-l1 { position: relative; }
+.lucent-l1-link {
+	display: inline-flex; align-items: center; gap: 6px;
+	padding: 9px 14px; border-radius: 999px;
+	font-weight: 600; font-size: 15px; color: var(--text);
+	transition: background-color .18s ease, color .18s ease;
+}
+.lucent-l1-link:hover,
+.lucent-l1.is-active > .lucent-l1-link {
+	background: color-mix(in srgb, var(--lucent-accent) 14%, transparent);
+	color: color-mix(in srgb, var(--lucent-accent) 80%, var(--text));
+}
+.lucent-caret { opacity: .6; transition: transform .2s ease; }
+.lucent-l1.has-sub:hover .lucent-caret,
+.lucent-l1.has-sub:focus-within .lucent-caret { transform: rotate(180deg); }
+
+/* mega panel */
+.lucent-mega {
+	position: absolute; top: calc(100% + 10px); left: 0;
+	min-width: 220px; max-width: min(720px, 86vw);
+	padding: 14px;
+	border-radius: var(--radius-lg);
+	background: var(--glass-bg-strong);
+	-webkit-backdrop-filter: blur(calc(var(--lucent-blur) + 6px)) saturate(160%);
+	backdrop-filter: blur(calc(var(--lucent-blur) + 6px)) saturate(160%);
+	border: 1px solid var(--glass-border);
+	box-shadow: var(--glass-shadow);
+	opacity: 0; visibility: hidden; transform: translateY(8px);
+	transition: opacity .2s ease, transform .2s ease, visibility .2s;
+}
+.lucent-l1.has-sub:hover > .lucent-mega,
+.lucent-l1.has-sub:focus-within > .lucent-mega,
+.lucent-l1.has-sub.is-open > .lucent-mega {
+	opacity: 1; visibility: visible; transform: translateY(0);
+}
+.lucent-mega-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 6px 18px;
+}
+.lucent-l2-link {
+	display: block; padding: 8px 10px; border-radius: 10px;
+	font-weight: 700; font-size: 14px;
+	transition: background-color .15s ease, color .15s ease;
+}
+.lucent-mega-col.is-active > .lucent-l2-link,
+.lucent-l2-link:hover { background: color-mix(in srgb, var(--lucent-accent) 12%, transparent); color: var(--lucent-accent); }
+.lucent-l3 { margin-top: 2px; }
+.lucent-l3-link {
+	display: block; padding: 7px 10px; border-radius: 9px;
+	font-size: 13.5px; color: var(--text-muted);
+	transition: background-color .15s ease, color .15s ease;
+}
+.lucent-l3-link:hover,
+.lucent-l3 .is-active > .lucent-l3-link { background: color-mix(in srgb, var(--lucent-accent) 10%, transparent); color: var(--text); }
+
+/* actions */
+.lucent-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.lucent-search { position: relative; display: flex; align-items: center; }
+.lucent-search-icon { position: absolute; left: 12px; color: var(--text-muted); pointer-events: none; }
+.lucent-search input[type="text"] {
+	width: 180px; height: var(--ctl-h); box-sizing: border-box;
+	padding: 0 16px 0 38px;
+	border-radius: 999px; border: 1px solid var(--glass-border);
+	background: var(--glass-bg); color: var(--text);
+	font-size: 14px; outline: none; transition: width .2s ease, box-shadow .2s ease;
+}
+.lucent-search input[type="text"]::placeholder { color: var(--text-muted); }
+.lucent-search input[type="text"]:focus {
+	width: 220px;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--lucent-accent) 30%, transparent);
+}
+.lucent-account { display: flex; align-items: center; font-size: 14px; }
+/* normalize the login_info widget markup into clean glass pills */
+.lucent-account .account { margin: 0 !important; position: relative !important; display: block !important; }
+.lucent-account .info { display: flex !important; align-items: center !important; margin: 0 !important; padding: 0 !important; list-style: none !important; }
+.lucent-account .info > li { margin: 0 !important; display: inline-block !important; }
+.lucent-account .account > a,
+.lucent-account .info > li > a {
+	display: inline-flex !important; align-items: center !important; gap: 6px !important;
+	height: var(--ctl-h) !important; box-sizing: border-box !important; padding: 0 18px !important; border-radius: 999px !important;
+	font-size: 14px !important; font-weight: 600 !important; line-height: 1 !important; color: var(--text) !important;
+	background: var(--glass-bg-strong) !important;
+	border: 1px solid var(--glass-border) !important;
+	box-shadow: none !important;
+	text-decoration: none !important;
+	transform: none !important;
+	transition: color .15s, border-color .15s, background-color .15s, transform .15s !important;
+}
+.lucent-account .info > li > a:hover,
+.lucent-account .account > a:hover { color: var(--lucent-accent) !important; border-color: var(--lucent-accent) !important; transform: translateY(-1px) !important; }
+.lucent-account .info .user::before,
+.lucent-account .info .admin::before { display: none !important; }
+/* login trigger = primary call to action */
+.lucent-account form.account > a {
+	color: #fff; border-color: transparent;
+	background: linear-gradient(135deg, var(--lucent-accent), var(--lucent-accent-2));
+	box-shadow: 0 6px 18px color-mix(in srgb, var(--lucent-accent) 35%, transparent);
+}
+.lucent-account form.account > a:hover { color: #fff; filter: brightness(1.06); }
+/* login dropdown popup -> glassmorphism panel */
+.lucent-account #acField {
+	position: absolute; right: 0; top: calc(100% + 12px);
+	width: 320px; box-sizing: border-box; margin: 0; padding: 72px 24px 24px;
+	border-radius: 20px;
+	background: var(--glass-bg-strong);
+	-webkit-backdrop-filter: blur(calc(var(--lucent-blur) + 10px)) saturate(170%);
+	backdrop-filter: blur(calc(var(--lucent-blur) + 10px)) saturate(170%);
+	border: 1px solid var(--glass-border);
+	box-shadow: var(--glass-shadow);
+	color: var(--text); text-align: left;
+	overflow: hidden;
+}
+
+/* Tab header style matching ID/Phone number tab */
+.lucent-account #acField h2 {
+	position: absolute;
+	top: 0; left: 0; right: 0;
+	height: 48px;
+	margin: 0;
+	padding: 0 24px;
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--lucent-accent);
+	background: color-mix(in srgb, var(--lucent-accent) 6%, transparent);
+	border-bottom: 1px solid var(--glass-border);
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Dynamic CSS mask SVG icon inside tab header */
+.lucent-account #acField h2::before {
+	content: "";
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background-color: var(--lucent-accent);
+	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4'%3E%3C/path%3E%3Cpolyline points='10 17 15 12 10 7'%3E%3C/polyline%3E%3Cline x1='15' y1='12' x2='3' y2='12'%3E%3C/line%3E%3C/svg%3E");
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4'%3E%3C/path%3E%3Cpolyline points='10 17 15 12 10 7'%3E%3C/polyline%3E%3Cline x1='15' y1='12' x2='3' y2='12'%3E%3C/line%3E%3C/svg%3E");
+	-webkit-mask-size: contain;
+	mask-size: contain;
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+}
+
+/* Grouped ID/Password container */
+.lucent-account #acField .idpw {
+	display: flex;
+	flex-direction: column;
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+	margin: 0 !important;
+	overflow: visible !important;
+}
+
+/* Hide only username/password labels, not checkbox label */
+.lucent-account #acField .idpw > label {
+	display: none !important;
+}
+
+.lucent-account #acField input[type="text"],
+.lucent-account #acField input[type="email"],
+.lucent-account #acField input[type="password"] {
+	width: 100% !important;
+	height: 46px !important;
+	box-sizing: border-box;
+	margin: 0 !important;
+	padding: 0 16px !important;
+	border: 1px solid var(--glass-border) !important;
+	border-radius: 0 !important;
+	background: color-mix(in srgb, var(--text) 4%, transparent) !important;
+	box-shadow: none !important;
+	color: var(--text) !important;
+	font-size: 14px !important;
+	outline: none !important;
+	position: relative;
+	transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.lucent-account #acField input[type="text"]:focus,
+.lucent-account #acField input[type="email"]:focus,
+.lucent-account #acField input[type="password"]:focus {
+	border-color: var(--lucent-accent) !important;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--lucent-accent) 20%, transparent) !important;
+	z-index: 2;
+	background: color-mix(in srgb, var(--lucent-accent) 4%, transparent) !important;
+}
+
+.lucent-account #acField input[name="user_id"] {
+	border-top-left-radius: 12px !important;
+	border-top-right-radius: 12px !important;
+}
+
+.lucent-account #acField input[name="password"] {
+	margin-top: -1px !important;
+	margin-bottom: 16px !important;
+	border-bottom-left-radius: 12px !important;
+	border-bottom-right-radius: 12px !important;
+}
+
+/* Premium toggle switch style for Stay signed in */
+.lucent-account #acField .keep {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	margin: 0 0 16px 0 !important;
+	font-size: 13.5px !important;
+	color: var(--text-muted) !important;
+	cursor: pointer !important;
+}
+
+.lucent-account #acField .keep input[type="checkbox"] {
+	appearance: none !important;
+	-webkit-appearance: none !important;
+	width: 36px !important;
+	height: 20px !important;
+	border-radius: 999px !important;
+	background: color-mix(in srgb, var(--text) 12%, transparent) !important;
+	border: 1px solid var(--glass-border) !important;
+	cursor: pointer !important;
+	position: relative !important;
+	transition: background-color 0.2s, border-color 0.2s !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	box-sizing: border-box !important;
+	display: inline-block !important;
+	flex: none !important;
+}
+
+/* Toggle switch knob */
+.lucent-account #acField .keep input[type="checkbox"]::after {
+	content: "" !important;
+	position: absolute !important;
+	width: 14px !important;
+	height: 14px !important;
+	border-radius: 50% !important;
+	background: #fff !important;
+	top: 2px !important;
+	left: 2px !important;
+	transform: none !important;
+	border: none !important;
+	transition: transform 0.2s !important;
+}
+
+/* Checked states */
+.lucent-account #acField .keep input[type="checkbox"]:checked {
+	background-color: var(--lucent-accent) !important;
+	border-color: var(--lucent-accent) !important;
+}
+
+.lucent-account #acField .keep input[type="checkbox"]:checked::after {
+	transform: translateX(16px) !important;
+}
+
+.lucent-account #acField .keep label {
+	display: inline-block !important;
+	margin: 0 !important;
+	cursor: pointer !important;
+	font-weight: 600 !important;
+	user-select: none !important;
+	order: -1 !important; /* Put label on left, toggle on right */
+}
+
+/* Gradient Sign in button with scale transitions */
+.lucent-account #acField input[type="submit"] {
+	width: 100% !important;
+	height: 44px !important;
+	margin: 0 !important;
+	border: none !important;
+	cursor: pointer;
+	border-radius: 12px !important;
+	font-weight: 700 !important;
+	font-size: 15px !important;
+	color: #fff !important;
+	background: linear-gradient(135deg, var(--lucent-accent), var(--lucent-accent-2)) !important;
+	box-shadow: 0 6px 20px color-mix(in srgb, var(--lucent-accent) 30%, transparent) !important;
+	transition: filter 0.15s, transform 0.15s, box-shadow 0.15s !important;
+}
+
+.lucent-account #acField input[type="submit"]:hover {
+	filter: brightness(1.08) !important;
+	transform: translateY(-1.5px) !important;
+	box-shadow: 0 8px 24px color-mix(in srgb, var(--lucent-accent) 40%, transparent) !important;
+}
+
+.lucent-account #acField input[type="submit"]:active {
+	transform: translateY(0) !important;
+}
+
+/* Center help links divided by a vertical line */
+.lucent-account #acField .help {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 12px;
+	margin: 20px 0 0 !important;
+	padding: 16px 0 0 !important;
+	border-top: 1px solid var(--glass-border) !important;
+	list-style: none !important;
+}
+
+.lucent-account #acField .help li {
+	margin: 0 !important;
+	padding: 0 !important;
+	display: inline-flex;
+	align-items: center;
+}
+
+.lucent-account #acField .help li + li::before {
+	content: "";
+	display: inline-block;
+	width: 1px;
+	height: 12px;
+	background-color: var(--glass-border);
+	margin-right: 12px;
+}
+
+.lucent-account #acField .help a {
+	color: var(--text-muted) !important;
+	font-size: 13px !important;
+	font-weight: 500;
+	background: none !important;
+	border: none !important;
+	padding: 0 !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+}
+
+.lucent-account #acField .help a:hover {
+	color: var(--lucent-accent) !important;
+}
+
+.lucent-account #acField .help a::after {
+	display: none !important;
+}
+
+/* Hide warning text */
+.lucent-account #acField .warning {
+	display: none !important;
+}
+
+/* Close button style */
+.lucent-account #acField .close {
+	position: absolute;
+	top: 10px;
+	right: 12px;
+	z-index: 10;
+	width: 28px;
+	height: 28px;
+	background: transparent;
+	border: none;
+	color: var(--text-muted);
+	font-size: 20px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: background-color 0.2s, color 0.2s;
+}
+
+.lucent-account #acField .close:hover {
+	background: color-mix(in srgb, var(--text) 8%, transparent);
+	color: var(--text);
+}
+
+/* burger */
+.lucent-burger {
+	display: none; width: 42px; height: 42px;
+	border-radius: 12px; border: 1px solid var(--glass-border);
+	background: var(--glass-bg); cursor: pointer;
+	flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+}
+.lucent-burger span { display: block; width: 18px; height: 2px; border-radius: 2px; background: var(--text); transition: transform .2s ease, opacity .2s ease; }
+
+/* =========================================================================
+   Mobile drawer
+   ========================================================================= */
+.lucent-drawer-backdrop {
+	position: fixed; inset: 0; z-index: 49;
+	background: rgba(0, 0, 0, 0.4);
+	-webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+}
+.lucent-drawer {
+	position: fixed; top: 0; right: 0; z-index: 50;
+	width: min(86vw, 340px); height: 100%;
+	padding: 64px 18px 24px;
+	overflow-y: auto;
+	background: var(--glass-bg-strong);
+	-webkit-backdrop-filter: blur(calc(var(--lucent-blur) + 8px)) saturate(160%);
+	backdrop-filter: blur(calc(var(--lucent-blur) + 8px)) saturate(160%);
+	border-left: 1px solid var(--glass-border);
+	box-shadow: -12px 0 40px rgba(0, 0, 0, 0.25);
+	transform: translateX(100%);
+	transition: transform .28s cubic-bezier(.4, 0, .2, 1);
+}
+.lucent-drawer.is-open { transform: translateX(0); }
+.lucent-drawer-close {
+	position: absolute; top: 14px; right: 16px;
+	width: 36px; height: 36px; border: none; border-radius: 10px;
+	background: transparent; color: var(--text); font-size: 26px; line-height: 1; cursor: pointer;
+}
+.lucent-drawer-search input {
+	width: 100%; padding: 10px 14px; margin-bottom: 12px;
+	border-radius: 12px; border: 1px solid var(--glass-border);
+	background: var(--glass-bg); color: var(--text); font-size: 15px; outline: none;
+}
+.lucent-drawer-nav a {
+	display: block; padding: 11px 12px; border-radius: 10px;
+	font-size: 15px; color: var(--text);
+}
+.lucent-drawer-nav > ul > li > a { font-weight: 700; }
+.lucent-drawer-nav ul ul { margin-left: 12px; display: none; }
+.lucent-drawer-nav li.is-expanded > ul { display: block; }
+.lucent-drawer-nav ul ul a { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+.lucent-drawer-nav .lucent-acc-row { display: flex; align-items: center; }
+.lucent-drawer-nav .lucent-acc-row > a { flex: 1; }
+.lucent-acc-toggle {
+	width: 40px; height: 40px; flex: none;
+	border: none; background: transparent; color: var(--text-muted);
+	cursor: pointer; font-size: 18px; border-radius: 10px;
+}
+.lucent-acc-toggle::before { content: "+"; }
+.lucent-drawer-nav li.is-expanded > .lucent-acc-row > .lucent-acc-toggle::before { content: "\2212"; }
+
+
+
+/* =========================================================================
+   Body / content
+   ========================================================================= */
+.lucent-main { padding-block: clamp(20px, 4vw, 40px); }
+.lucent-container { display: block; }
+.lucent-container.has-aside {
+	display: grid;
+	grid-template-columns: 248px minmax(0, 1fr);
+	gap: clamp(18px, 3vw, 32px);
+	align-items: start;
+}
+.lucent-content {
+	display: flow-root;        /* contain floated module content (.rhymix_content is float:left) */
+	min-width: 0;
+	padding: clamp(18px, 3vw, 30px);
+	border-radius: var(--radius-lg);
+	background: var(--glass-bg);
+	-webkit-backdrop-filter: blur(var(--lucent-blur)) saturate(140%);
+	backdrop-filter: blur(var(--lucent-blur)) saturate(140%);
+	border: 1px solid var(--glass-border);
+	box-shadow: var(--glass-shadow);
+}
+
+/* LNB */
+.lucent-lnb {
+	position: sticky; top: 84px;
+	padding: 18px;
+	border-radius: var(--radius-lg);
+	background: var(--glass-bg);
+	-webkit-backdrop-filter: blur(var(--lucent-blur)) saturate(150%);
+	backdrop-filter: blur(var(--lucent-blur)) saturate(150%);
+	border: 1px solid var(--glass-border);
+	box-shadow: var(--glass-shadow);
+}
+.lucent-lnb-title { margin: 0 0 12px; font-size: 17px; font-weight: 800; }
+.lucent-lnb-list a { display: block; padding: 8px 10px; border-radius: 9px; font-size: 14px; color: var(--text-muted); }
+.lucent-lnb-list > li > a { font-weight: 600; color: var(--text); }
+.lucent-lnb-list a:hover,
+.lucent-lnb-list .is-active > a { background: color-mix(in srgb, var(--lucent-accent) 12%, transparent); color: var(--lucent-accent); }
+.lucent-lnb-list ul { margin-left: 10px; }
+
+/* =========================================================================
+   Footer
+   ========================================================================= */
+.lucent-footer {
+	margin-top: 0;            /* balance: content->footer gap == header->content gap (from .lucent-main padding) */
+	margin-bottom: 16px;
+	background: var(--glass-bg);
+	-webkit-backdrop-filter: blur(var(--lucent-blur)) saturate(150%);
+	backdrop-filter: blur(var(--lucent-blur)) saturate(150%);
+	border: 1px solid var(--glass-border);
+	border-radius: var(--radius-lg);
+	box-shadow: 0 12px 34px rgba(17, 24, 39, 0.10);
+}
+.lucent-footer-inner { padding: 22px clamp(16px, 3vw, 28px); color: var(--text-muted); font-size: 14px; }
+.lucent-footer a { color: var(--lucent-accent); }
+
+/* =========================================================================
+   Responsive
+   ========================================================================= */
+@media (max-width: 880px) {
+	.lucent-gnb { display: none; }
+	.lucent-search { display: none; }
+	.lucent-account { display: none; }        /* moved into the drawer on mobile */
+	.lucent-burger { display: inline-flex; }
+	.lucent-header-inner { gap: 10px; }
+	.lucent-logo { font-size: 18px; }
+	.lucent-container.has-aside { grid-template-columns: 1fr; }
+	.lucent-lnb { position: static; }
+}
+@media (min-width: 881px) {
+	.lucent-drawer, .lucent-drawer-backdrop { display: none; }
+	.lucent-drawer-account { display: none; }
+}
+
+/* account block inside the mobile drawer */
+.lucent-drawer-account { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 14px; }
+.lucent-drawer-account .lda-pill {
+	display: inline-flex; align-items: center; height: var(--ctl-h); box-sizing: border-box;
+	padding: 0 18px; border-radius: 999px;
+	font-size: 14px; font-weight: 600; color: var(--text);
+	background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
+}
+.lucent-drawer-account .lda-primary {
+	color: #fff; border-color: transparent;
+	background: linear-gradient(135deg, var(--lucent-accent), var(--lucent-accent-2));
+}

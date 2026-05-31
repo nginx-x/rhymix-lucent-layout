@@ -1,0 +1,177 @@
+<load target="lucent.layout.css" />
+<load target="lucent.layout.js" type="body" />
+
+<!-- Theming bridge: colorset & extra_vars -> CSS custom properties -->
+{@
+	$color_set = !empty($layout_info->COLOR_SET) ? $layout_info->COLOR_SET : 'default';
+	
+	$themes = array(
+		'default'  => array('#6366f1', '#8b5cf6', '#22d3ee'),
+		'emerald'  => array('#0d9488', '#10b981', '#3b82f6'),
+		'sunset'   => array('#f43f5e', '#f97316', '#ec4899'),
+		'cyber'    => array('#d946ef', '#8b5cf6', '#06b6d4'),
+		'ocean'    => array('#2563eb', '#06b6d4', '#6366f1'),
+		'golden'   => array('#d97706', '#ea580c', '#10b981'),
+		'northern' => array('#10b981', '#8b5cf6', '#ec4899'),
+		'sakura'   => array('#f472b6', '#c084fc', '#fda4af'),
+		'forest'   => array('#059669', '#1d4ed8', '#4f46e5'),
+		'citrus'   => array('#84cc16', '#f97316', '#eab308')
+	);
+
+	$selected_theme = !empty($themes[$color_set]) ? $themes[$color_set] : $themes['default'];
+
+	$accent = !empty($layout_info->ACCENT_COLOR) ? $layout_info->ACCENT_COLOR : $selected_theme[0];
+	$accent_2 = !empty($layout_info->ACCENT_COLOR_2) ? $layout_info->ACCENT_COLOR_2 : $selected_theme[1];
+	$blob_3 = !empty($layout_info->ACCENT_COLOR_3) ? $layout_info->ACCENT_COLOR_3 : $selected_theme[2];
+}
+<style>
+.lucent{
+	--lucent-accent: {$accent};
+	--lucent-accent-2: {$accent_2};
+	--lucent-blob-3: {$blob_3};
+}
+</style>
+<style cond="!empty($layout_info->BG_IMAGE)">
+.lucent[data-bg="image"] .lucent-bg{ background-image: url('{$layout_info->BG_IMAGE}'); }
+</style>
+
+<div class="lucent"
+	data-scheme="{!empty($layout_info->COLOR_SCHEME) ? $layout_info->COLOR_SCHEME : 'auto'}"
+	data-bg="{!empty($layout_info->BG_STYLE) ? $layout_info->BG_STYLE : 'aurora'}"
+	data-width="{!empty($layout_info->CONTAINER_WIDTH) ? $layout_info->CONTAINER_WIDTH : 'boxed'}"
+	data-sticky="{!empty($layout_info->STICKY_HEADER) ? $layout_info->STICKY_HEADER : 'yes'}">
+
+	<!-- Decorative background layer (gives glass something to blur) -->
+	<div class="lucent-bg" aria-hidden="true"></div>
+
+	<a class="lucent-skip" href="#content">{$lang->skip_to_content}</a>
+
+	<!-- ============ HEADER ============ -->
+	<header class="lucent-header">
+		<div class="lucent-header-inner">
+			<a class="lucent-logo" href="{geturl('')}">
+				<img src="{$layout_info->LOGO_IMG}" alt="{!empty($layout_info->LOGO_TEXT) ? $layout_info->LOGO_TEXT : 'Home'}" cond="!empty($layout_info->LOGO_IMG)" />
+				<span cond="empty($layout_info->LOGO_IMG) && !empty($layout_info->LOGO_TEXT)">{$layout_info->LOGO_TEXT}</span>
+				<span cond="empty($layout_info->LOGO_IMG) && empty($layout_info->LOGO_TEXT)">{Context::getSiteTitle() ?: 'Rhymix'}</span>
+			</a>
+
+			<!-- Desktop mega navigation (up to 3 depth) -->
+			<nav class="lucent-gnb" aria-label="Global">
+				<ul class="lucent-menu">
+					<li loop="$GNB->list=>$key1,$val1" class="lucent-l1{!empty($val1['list']) ? ' has-sub' : ''}{$val1['selected'] ? ' is-active' : ''}">
+						<a class="lucent-l1-link" href="{$val1['href']}" target="_blank"|cond="$val1['open_window']=='Y'">
+							<span>{$val1['link']}</span>
+							<svg cond="!empty($val1['list'])" class="lucent-caret" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+						</a>
+						<div class="lucent-mega" cond="!empty($val1['list'])">
+							<ul class="lucent-mega-grid">
+								<li loop="$val1['list']=>$key2,$val2" class="lucent-mega-col{$val2['selected'] ? ' is-active' : ''}">
+									<a class="lucent-l2-link" href="{$val2['href']}" target="_blank"|cond="$val2['open_window']=='Y'">{$val2['link']}</a>
+									<ul class="lucent-l3" cond="!empty($val2['list'])">
+										<li loop="$val2['list']=>$key3,$val3" class="{$val3['selected'] ? 'is-active' : ''}">
+											<a class="lucent-l3-link" href="{$val3['href']}" target="_blank"|cond="$val3['open_window']=='Y'">{$val3['link']}</a>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					</li>
+				</ul>
+			</nav>
+
+			<div class="lucent-actions">
+				<!-- SEARCH -->
+				<form cond="(!empty($layout_info->SHOW_SEARCH) ? $layout_info->SHOW_SEARCH : 'yes') != 'no'" action="{getUrl()}" method="get" class="lucent-search" no-error-return-url="true" role="search">
+					<input type="hidden" name="mid" value="{$mid}" />
+					<input type="hidden" name="act" value="IS" />
+					<svg class="lucent-search-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+					<input type="text" name="is_keyword" value="{$is_keyword}" required placeholder="{$lang->cmd_search}" title="{$lang->cmd_search}" />
+				</form>
+				<!-- ACCOUNT -->
+				<div class="lucent-account">
+					<img widget="login_info" skin="default" />
+				</div>
+				<!-- Mobile menu toggle -->
+				<button type="button" class="lucent-burger" aria-label="Menu" aria-expanded="false" aria-controls="lucent-drawer">
+					<span></span><span></span><span></span>
+				</button>
+			</div>
+		</div>
+	</header>
+
+	<!-- ============ MOBILE DRAWER ============ -->
+	<div class="lucent-drawer-backdrop" hidden></div>
+	<aside class="lucent-drawer" id="lucent-drawer" aria-label="Mobile navigation" hidden>
+		<button type="button" class="lucent-drawer-close" aria-label="Close">&times;</button>
+		<div class="lucent-drawer-account">
+			<!--@if($is_logged)-->
+				<a class="lda-pill" href="{getUrl('act','dispMemberInfo','member_srl','')}">{$logged_info->nick_name}</a>
+				<a class="lda-pill" cond="$logged_info->is_admin == 'Y'" href="{getUrl('','module','admin')}">{$lang->cmd_management}</a>
+				<a class="lda-pill lda-primary" href="{getUrl('act','dispMemberLogout')}">{$lang->cmd_logout}</a>
+			<!--@else-->
+				<a class="lda-pill lda-primary" href="{getUrl('act','dispMemberLoginForm')}">{$lang->cmd_login}</a>
+				<a class="lda-pill" href="{getUrl('act','dispMemberSignUpForm')}">{$lang->cmd_signup}</a>
+			<!--@end-->
+		</div>
+		<form cond="(!empty($layout_info->SHOW_SEARCH) ? $layout_info->SHOW_SEARCH : 'yes') != 'no'" action="{getUrl()}" method="get" class="lucent-drawer-search" no-error-return-url="true" role="search">
+			<input type="hidden" name="mid" value="{$mid}" />
+			<input type="hidden" name="act" value="IS" />
+			<input type="text" name="is_keyword" value="{$is_keyword}" required placeholder="{$lang->cmd_search}" title="{$lang->cmd_search}" />
+		</form>
+		<nav class="lucent-drawer-nav" aria-label="Mobile global">
+			<ul>
+				<li loop="$GNB->list=>$key1,$val1" class="{$val1['selected'] ? 'is-active' : ''}">
+					<a href="{$val1['href']}" target="_blank"|cond="$val1['open_window']=='Y'">{$val1['link']}</a>
+					<ul cond="!empty($val1['list'])">
+						<li loop="$val1['list']=>$key2,$val2" class="{$val2['selected'] ? 'is-active' : ''}">
+							<a href="{$val2['href']}" target="_blank"|cond="$val2['open_window']=='Y'">{$val2['link']}</a>
+							<ul cond="!empty($val2['list'])">
+								<li loop="$val2['list']=>$key3,$val3" class="{$val3['selected'] ? 'is-active' : ''}">
+									<a href="{$val3['href']}" target="_blank"|cond="$val3['open_window']=='Y'">{$val3['link']}</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</nav>
+	</aside>
+
+
+
+	<!-- ============ BODY ============ -->
+	<main class="lucent-main">
+		<div class="lucent-container{$layout_info->LAYOUT_TYPE == 'SUB_PAGE' ? ' has-aside' : ''}">
+
+			<!-- LNB sidebar (sub page) -->
+			<aside class="lucent-lnb" cond="$layout_info->LAYOUT_TYPE == 'SUB_PAGE'" aria-label="Local">
+				<block loop="$GNB->list=>$key1,$val1" cond="$val1['selected']">
+					<h2 class="lucent-lnb-title"><a href="{$val1['href']}">{$val1['link']}</a></h2>
+					<ul class="lucent-lnb-list" cond="!empty($val1['list'])">
+						<li loop="$val1['list']=>$key2,$val2" class="{$val2['selected'] ? 'is-active' : ''}">
+							<a href="{$val2['href']}" target="_blank"|cond="$val2['open_window']=='Y'">{$val2['link']}</a>
+							<ul cond="!empty($val2['list'])">
+								<li loop="$val2['list']=>$key3,$val3" class="{$val3['selected'] ? 'is-active' : ''}">
+									<a href="{$val3['href']}" target="_blank"|cond="$val3['open_window']=='Y'">{$val3['link']}</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</block>
+			</aside>
+
+			<!-- CONTENT -->
+			<div class="lucent-content" id="content">
+				{$content|noescape}
+			</div>
+		</div>
+	</main>
+
+	<!-- ============ FOOTER ============ -->
+	<footer class="lucent-footer">
+		<div class="lucent-footer-inner">
+			<p cond="empty($layout_info->FOOTER)">Powered by <a href="https://rhymix.org" target="_blank" rel="noopener">Rhymix</a> &amp; Layout by <a href="https://github.com/nginx-x" target="_blank" rel="noopener">nginx_x</a></p>
+			<div cond="!empty($layout_info->FOOTER)">{$layout_info->FOOTER|noescape}</div>
+		</div>
+	</footer>
+</div>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout version="0.2">
+	<title xml:lang="ko">Lucent</title>
+	<title xml:lang="en">Lucent</title>
+	<description xml:lang="ko">Tailwind CSS v4 기반의 깨끗하고 모던한 글래스모피즘 반응형 레이아웃</description>
+	<description xml:lang="en">A clean, modern glassmorphism responsive layout built with Tailwind CSS v4</description>
+	<version>1.0.0</version>
+	<date>2026-05-31</date>
+	<author email_address="geunhong.kim@ghkim.net" link="https://github.com/nginx-x">
+		<name xml:lang="ko">nginx_x</name>
+		<name xml:lang="en">nginx_x</name>
+	</author>
+	<license>GPL v2</license>
+	<menus>
+		<menu name="GNB" maxdepth="3" default="true">
+			<title xml:lang="ko">전역 네비게이션 (최대 3단)</title>
+			<title xml:lang="en">Global Navigation (up to 3 depth)</title>
+		</menu>
+	</menus>
+	<extra_vars>
+		<!-- Branding -->
+		<var name="LOGO_IMG" type="image">
+			<title xml:lang="ko">사이트 로고 이미지</title>
+			<title xml:lang="en">Site logo image</title>
+		</var>
+		<var name="LOGO_TEXT" type="text">
+			<title xml:lang="ko">사이트 로고 문자 (이미지 없을 때)</title>
+			<title xml:lang="en">Site logo text (when no image)</title>
+		</var>
+
+		<!-- Appearance -->
+		<var name="COLOR_SCHEME" type="select">
+			<title xml:lang="ko">색상 모드</title>
+			<title xml:lang="en">Color scheme</title>
+			<options value="auto"><title xml:lang="ko">자동 (시스템 설정 따름)</title><title xml:lang="en">Auto (follow system)</title></options>
+			<options value="light"><title xml:lang="ko">라이트</title><title xml:lang="en">Light</title></options>
+			<options value="dark"><title xml:lang="ko">다크</title><title xml:lang="en">Dark</title></options>
+		</var>
+		<var name="COLOR_SET" type="select">
+			<title xml:lang="ko">컬러셋 테마 (Presets)</title>
+			<title xml:lang="en">Color Set Theme</title>
+			<options value="default"><title xml:lang="ko">기본 (인디고 &amp; 바이올렛)</title><title xml:lang="en">Default (Indigo &amp; Violet)</title></options>
+			<options value="emerald"><title xml:lang="ko">에메랄드 오로라 (티블루 &amp; 에메랄드)</title><title xml:lang="en">Emerald Aurora (Teal &amp; Emerald)</title></options>
+			<options value="sunset"><title xml:lang="ko">선셋 글로우 (로즈 &amp; 오렌지)</title><title xml:lang="en">Sunset Glow (Rose &amp; Orange)</title></options>
+			<options value="cyber"><title xml:lang="ko">네온 사이버 (퓨샤 &amp; 퍼플)</title><title xml:lang="en">Neon Cyber (Fuchsia &amp; Purple)</title></options>
+			<options value="ocean"><title xml:lang="ko">딥 오션 (블루 &amp; 시안)</title><title xml:lang="en">Deep Ocean (Blue &amp; Cyan)</title></options>
+			<options value="golden"><title xml:lang="ko">골든 벨벳 (앰버 &amp; 오렌지)</title><title xml:lang="en">Golden Velvet (Amber &amp; Orange)</title></options>
+			<options value="northern"><title xml:lang="ko">노던 라이트 (민트 &amp; 퍼플)</title><title xml:lang="en">Northern Lights (Mint &amp; Purple)</title></options>
+			<options value="sakura"><title xml:lang="ko">사쿠라 브리즈 (핑크 &amp; 연보라)</title><title xml:lang="en">Sakura Breeze (Pink &amp; Soft Violet)</title></options>
+			<options value="forest"><title xml:lang="ko">미드나잇 포레스트 (솔나무 &amp; 네이비)</title><title xml:lang="en">Midnight Forest (Pine &amp; Navy)</title></options>
+			<options value="citrus"><title xml:lang="ko">시트러스 버스트 (라임 &amp; 오렌지)</title><title xml:lang="en">Citrus Burst (Lime &amp; Orange)</title></options>
+			<options value="custom"><title xml:lang="ko">사용자 지정 (Custom Color)</title><title xml:lang="en">Custom Color (Manual HEX)</title></options>
+		</var>
+		<var name="ACCENT_COLOR" type="text">
+			<title xml:lang="ko">사용자 지정 강조 색상 1 (HEX, 예: #6366f1)</title>
+			<title xml:lang="en">Custom Accent color 1 (HEX, e.g. #6366f1)</title>
+		</var>
+		<var name="ACCENT_COLOR_2" type="text">
+			<title xml:lang="ko">사용자 지정 강조 색상 2 — 그라데이션용 (HEX, 예: #8b5cf6)</title>
+			<title xml:lang="en">Custom Accent color 2 — for gradients (HEX, e.g. #8b5cf6)</title>
+		</var>
+		<var name="ACCENT_COLOR_3" type="text">
+			<title xml:lang="ko">사용자 지정 오로라 배경 구체 색상 3 (HEX, 예: #22d3ee)</title>
+			<title xml:lang="en">Custom Aurora background blob 3 (HEX, e.g. #22d3ee)</title>
+		</var>
+
+		<var name="BG_STYLE" type="select">
+			<title xml:lang="ko">배경 스타일</title>
+			<title xml:lang="en">Background style</title>
+			<options value="aurora"><title xml:lang="ko">오로라 그라데이션</title><title xml:lang="en">Aurora gradient</title></options>
+			<options value="image"><title xml:lang="ko">배경 이미지</title><title xml:lang="en">Background image</title></options>
+			<options value="solid"><title xml:lang="ko">단색</title><title xml:lang="en">Solid</title></options>
+		</var>
+		<var name="BG_IMAGE" type="image">
+			<title xml:lang="ko">배경 이미지 (배경 스타일=이미지일 때)</title>
+			<title xml:lang="en">Background image (when style = image)</title>
+		</var>
+		<var name="CONTAINER_WIDTH" type="select">
+			<title xml:lang="ko">본문 폭</title>
+			<title xml:lang="en">Container width</title>
+			<options value="boxed"><title xml:lang="ko">박스 (1120px)</title><title xml:lang="en">Boxed (1120px)</title></options>
+			<options value="wide"><title xml:lang="ko">와이드 (1320px)</title><title xml:lang="en">Wide (1320px)</title></options>
+			<options value="full"><title xml:lang="ko">전체 폭</title><title xml:lang="en">Full width</title></options>
+		</var>
+		<var name="STICKY_HEADER" type="select">
+			<title xml:lang="ko">헤더 상단 고정</title>
+			<title xml:lang="en">Sticky header</title>
+			<options value="yes"><title xml:lang="ko">고정</title><title xml:lang="en">Yes</title></options>
+			<options value="no"><title xml:lang="ko">고정 안 함</title><title xml:lang="en">No</title></options>
+		</var>
+		<var name="SHOW_SEARCH" type="select">
+			<title xml:lang="ko">헤더 검색창 표시</title>
+			<title xml:lang="en">Show header search</title>
+			<options value="yes"><title xml:lang="ko">표시</title><title xml:lang="en">Yes</title></options>
+			<options value="no"><title xml:lang="ko">숨김</title><title xml:lang="en">No</title></options>
+		</var>
+
+
+
+		<!-- Footer -->
+		<var name="FOOTER" type="textarea">
+			<title xml:lang="ko">사이트 풋터 문자 (HTML 허용)</title>
+			<title xml:lang="en">Site footer text (HTML allowed)</title>
+		</var>
+	</extra_vars>
+</layout>
