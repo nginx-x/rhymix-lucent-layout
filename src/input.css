@@ -320,6 +320,29 @@ body:has(.lucent[data-scheme="dark"]) {
 	box-shadow: 0 6px 18px color-mix(in srgb, var(--lucent-accent) 35%, transparent);
 }
 .lucent-account form.account > a:hover { color: #fff; filter: brightness(1.06); }
+
+/* notification bell (toggles the injected #nc_container) */
+.lucent-bell {
+	position: relative; flex: none; order: 0;
+	display: inline-flex; align-items: center; justify-content: center;
+	width: var(--ctl-h); height: var(--ctl-h); border-radius: 50%;
+	cursor: pointer; color: var(--text);
+	background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
+	transition: color .15s, transform .15s, border-color .15s;
+}
+.lucent-bell:hover { color: var(--lucent-accent); border-color: var(--lucent-accent); transform: translateY(-1px); }
+.lucent-bell[aria-expanded="true"] { color: var(--lucent-accent); border-color: var(--lucent-accent); }
+.lucent-bell.has-unread { color: var(--lucent-accent); }
+.lucent-bell-badge {
+	position: absolute; top: -3px; right: -3px;
+	min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
+	display: none; align-items: center; justify-content: center;
+	font-size: 11px; font-weight: 800; line-height: 1; color: #fff;
+	background: linear-gradient(135deg, #ef4444, #f97316);
+	box-shadow: 0 2px 6px rgba(239, 68, 68, 0.5);
+}
+.lucent-bell-badge:not(:empty) { display: inline-flex; }
+
 /* login dropdown popup -> glassmorphism panel */
 .lucent-account #acField {
 	position: absolute; right: 0; top: calc(100% + 12px);
